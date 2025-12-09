@@ -1,0 +1,27 @@
+# .NET Core
+bin/
+obj/
+.vs/
+*.db
+*.log
+*.pdb
+*.cache
+*.config
+*.bak
+*.swp
+*.user
+*.vs/
+.vscode/
+.idea/
+*.suo
+*.ncrunch*
+*.userosscache
+*.sln.docstates
+project.lock.json
+artifacts/
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# Azure Web App publish settings
+*.PublishSettings
