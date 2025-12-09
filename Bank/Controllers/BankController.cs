@@ -7,31 +7,34 @@ namespace Bank.Controllers
     public class BankController : Controller
     {
         [HttpGet]
-        public IActionResult Index()
+        public IActionResult Get()
         {
             return Ok();
         }
 
-        [HttpPost]
-        public IActionResult Create(Bank.Domain.Bank bank)
+        [HttpGet]
+        public IActionResult GetById(Guid id)
         {
             return Ok();
+        }
 
+
+        [HttpPost]
+        public IActionResult Create(Domain.Bank bank)
+        {
+            return Ok();
         }
 
         [HttpPut]
-        public IActionResult Update(Bank.Domain.Bank bank)
+        public IActionResult Update(Domain.Bank bank)
         {
             return Ok();
-
         }
 
         [HttpDelete]
         public IActionResult Delete(Guid id)
         {
             return Ok();
-
         }
-
     }
 }
