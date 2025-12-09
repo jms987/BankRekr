@@ -1,103 +1,100 @@
-﻿using Bank.Infrastructure.CommandDatabase;
-using Bank.Infrastructure.QueryDatabase;
+﻿using Bank.Infrastructure.QueryDatabase;
 using Bank.Query.GetBank;
-using Bank.Query.QueryDispatcher;
+using Bank.Query.Infrastructure;
+using Bank.Query.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Bank.Query.Test
+namespace Bank.Query.Test;
+
+[TestFixture]
+public class GetBankTest
 {
-
-    [TestFixture]
-    public class GetBankTest
+    [SetUp]
+    public void Setup()
     {
-        private ServiceProvider _serviceProvider;
-        private QueryDatabaseContext _queryContext;
+        var services = new ServiceCollection();
 
-        [SetUp]
-        public void Setup()
+        services.AddDbContext<QueryDatabaseContext>(options =>
+            options.UseInMemoryDatabase($"QueryTestDb_{Guid.NewGuid()}"));
+
+        services.AddLogging();
+
+        services.AddQueriesHandler();
+        _serviceProvider = services.BuildServiceProvider();
+
+        _queryContext = _serviceProvider.GetRequiredService<QueryDatabaseContext>();
+
+        _queryContext.Database.EnsureCreated();
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        _queryContext?.Database.EnsureDeleted();
+        _queryContext?.Dispose();
+        _serviceProvider?.Dispose();
+    }
+
+    private ServiceProvider _serviceProvider;
+    private QueryDatabaseContext _queryContext;
+
+    [Test]
+    public async Task Test_GetBankById_ShouldReturnBankFromQueryCache_WhenBankExistsInQueryDb()
+    {
+        var handler = _serviceProvider.GetRequiredService<IQueryHandler<GetBankQuery, GetBankQueryReadModel>>();
+        // Arrange
+        var bankId = Guid.NewGuid();
+        var bank = new Domain.Bank
         {
-            var services = new ServiceCollection();
+            Id = bankId,
+            Name = "Millenium",
+            Description = "Największy bank w Polsce",
+            City = "Warszawa",
+            Country = "Polska"
+        };
 
-            services.AddDbContext<QueryDatabaseContext>(options =>
-                options.UseInMemoryDatabase(databaseName: $"QueryTestDb_{Guid.NewGuid()}"));
+        await _queryContext.Banks.AddAsync(bank);
+        await _queryContext.SaveChangesAsync();
 
-            services.AddLogging();
+        var query = new GetBankQuery { BankId = bankId };
 
-            services.AddQueryHandler();
-            _serviceProvider = services.BuildServiceProvider();
+        // Act
+        var result = await handler.HandleAsync(query);
 
-            _queryContext = _serviceProvider.GetRequiredService<QueryDatabaseContext>();
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Bank, Is.Not.Null);
+        Assert.That(result.Bank.Id, Is.EqualTo(bankId));
+        Assert.That(result.Bank.Name, Is.EqualTo("Millenium"));
+        Assert.That(result.Bank.City, Is.EqualTo("Warszawa"));
+        Assert.That(result.Bank.Country, Is.EqualTo("Polska"));
+    }
 
-            _queryContext.Database.EnsureCreated();
-
-        }
-
-        [TearDown]
-        public void TearDown()
+    [Test]
+    public async Task Test_GetBankById_ShouldReturnNoBank_WhenBankNotExistsInDb()
+    {
+        var handler = _serviceProvider.GetRequiredService<IQueryHandler<GetBankQuery, GetBankQueryReadModel>>();
+        // Arrange
+        var bankId = Guid.NewGuid();
+        var bank = new Domain.Bank
         {
-            _queryContext?.Database.EnsureDeleted();
-            _queryContext?.Dispose();
-            _serviceProvider?.Dispose();
-        }
+            Id = bankId,
+            Name = "Millenium",
+            Description = "Największy bank w Polsce",
+            City = "Warszawa",
+            Country = "Polska"
+        };
 
-        [Test]
-        public async Task Test_GetBankById_ShouldReturnBankFromQueryCache_WhenBankExistsInQueryDb()
-        {
-            var handler = _serviceProvider.GetRequiredService<IQueryHandler<GetBankQuery, GetBankQueryReadModel>>();
-            // Arrange
-            var bankId = Guid.NewGuid();
-            var bank = new Domain.Bank
-            {
-                Id = bankId,
-                Name = "Millenium",
-                Description = "Największy bank w Polsce",
-                City = "Warszawa",
-                Country = "Polska"
-            };
+        await _queryContext.Banks.AddAsync(bank);
+        await _queryContext.SaveChangesAsync();
 
-            await _queryContext.Banks.AddAsync(bank);
-            await _queryContext.SaveChangesAsync();
+        var query = new GetBankQuery { BankId = Guid.NewGuid() };
 
-            var query = new GetBankQuery { BankId = bankId };
+        // Act
+        var result = await handler.HandleAsync(query);
 
-            // Act
-            var result = await handler.HandleAsync(query);
-
-            // Assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.Bank, Is.Not.Null);
-            Assert.That(result.Bank.Id, Is.EqualTo(bankId));
-            Assert.That(result.Bank.Name, Is.EqualTo("Millenium"));
-            Assert.That(result.Bank.City, Is.EqualTo("Warszawa"));
-            Assert.That(result.Bank.Country, Is.EqualTo("Polska"));
-        }
-
-        [Test]
-        public async Task Test_GetBankById_ShouldReturnNoBank_WhenBankNotExistsInDb()
-        {
-            var handler = _serviceProvider.GetRequiredService<IQueryHandler<GetBankQuery, GetBankQueryReadModel>>();
-            // Arrange
-            var bankId = Guid.NewGuid();
-            var bank = new Domain.Bank
-            {
-                Id = bankId,
-                Name = "Millenium",
-                Description = "Największy bank w Polsce",
-                City = "Warszawa",
-                Country = "Polska"
-            };
-
-            await _queryContext.Banks.AddAsync(bank);
-            await _queryContext.SaveChangesAsync();
-
-            var query = new GetBankQuery { BankId = Guid.NewGuid() };
-
-            // Act
-            var result = await handler.HandleAsync(query);
-
-            // Assert
-            Assert.That(result.Bank, Is.Null);
-        }
+        // Assert
+        Assert.That(result.Bank, Is.Null);
     }
 }

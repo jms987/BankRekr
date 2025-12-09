@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Bank.Query\Bank.Query.csproj" />
+    <ProjectReference Include="..\Bank.Command\Bank.Command.csproj" />
   </ItemGroup>
 
   <ItemGroup>
