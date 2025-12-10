@@ -1,9 +1,10 @@
 ﻿using Bank.Command.AddBank;
 using Bank.Command.DeleteBank;
+using Bank.Command.Infrastructure.Interfaces;
 using Bank.Command.UpdateBank;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Bank.Command.CommandDispatcher;
+namespace Bank.Command.Infrastructure;
 
 public static class CommandHandlerServiceCollectionExtensions
 {

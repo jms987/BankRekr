@@ -1,4 +1,6 @@
-﻿namespace Bank.Query.QueryDispatcher;
+﻿using Bank.Query.Infrastructure.Interfaces;
+
+namespace Bank.Query.Infrastructure;
 
 public class QueryDispatcher : IQueryDispatcher
 {

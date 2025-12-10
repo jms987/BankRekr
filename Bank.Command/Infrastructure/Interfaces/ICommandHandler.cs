@@ -1,4 +1,4 @@
-﻿namespace Bank.Command.CommandDispatcher;
+﻿namespace Bank.Command.Infrastructure.Interfaces;
 
 public interface ICommandHandler<TCommand> where TCommand : ICommand
 {

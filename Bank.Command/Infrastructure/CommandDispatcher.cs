@@ -1,4 +1,6 @@
-﻿namespace Bank.Command.CommandDispatcher;
+﻿using Bank.Command.Infrastructure.Interfaces;
+
+namespace Bank.Command.Infrastructure;
 
 public class CommandDispatcher : ICommandDispatcher
 {

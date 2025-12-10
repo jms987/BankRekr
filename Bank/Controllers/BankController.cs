@@ -19,7 +19,6 @@ public class BankController : Controller
 
     [HttpGet]
     public async Task<IActionResult> Get()
-
     {
         try
         {
@@ -37,7 +36,6 @@ public class BankController : Controller
     public async Task<IActionResult> GetById(Guid id)
     {
         if (id == Guid.Empty) return BadRequest("Invalid bank ID");
-
         try
         {
             var result = await _bankService.GetBankByIdAsync(id);
@@ -71,26 +69,20 @@ public class BankController : Controller
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateBank bank)
+    public async Task<IActionResult> Update([FromBody] UpdateBank bank)
     {
-        if (id == Guid.Empty) return BadRequest("Invalid bank ID");
-
-        if (bank.Id != id) return BadRequest("ID in URL does not match ID in body");
+        if (bank.Id == Guid.Empty) return BadRequest("Invalid bank ID");
 
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
         try
         {
             await _bankService.UpdateBankAsync(bank);
-            return NoContent();
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound($"Bank with ID {id} not found");
+            return Ok();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error occurred while updating bank with ID {BankId}", id);
+            _logger.LogError(ex, "Error occurred while updating bank with ID {BankId}");
             return StatusCode(500, "An error occurred while processing your request");
         }
     }
@@ -103,11 +95,7 @@ public class BankController : Controller
         try
         {
             await _bankService.DeleteBankAsync(id);
-            return NoContent();
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound($"Bank with ID {id} not found");
+            return Ok();
         }
         catch (Exception ex)
         {

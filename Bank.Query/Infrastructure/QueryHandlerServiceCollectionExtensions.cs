@@ -1,8 +1,9 @@
 ﻿using Bank.Query.GetBank;
 using Bank.Query.GetBanks;
+using Bank.Query.Infrastructure.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Bank.Query.QueryDispatcher;
+namespace Bank.Query.Infrastructure;
 
 public static class QueryHandlerServiceCollectionExtensions
 {
